@@ -22,8 +22,11 @@ public class UserApiClient {
 
     private String accessToken;
 
+    // Создание пользователя через API
     public int createUser(String email, String password, String name)
             throws IOException {
+
+        accessToken = null;
 
         URL url = new URL(BASE_URL + "/api/auth/register");
 
@@ -70,10 +73,62 @@ public class UserApiClient {
         }
     }
 
+    // Авторизация пользователя через API
+    public int loginUser(String email, String password)
+            throws IOException {
+
+        accessToken = null;
+
+        URL url = new URL(BASE_URL + "/api/auth/login");
+
+        HttpURLConnection connection =
+                (HttpURLConnection) url.openConnection();
+
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setRequestProperty("Accept", "application/json");
+        connection.setConnectTimeout(TIMEOUT);
+        connection.setReadTimeout(TIMEOUT);
+        connection.setDoOutput(true);
+
+        String json = objectMapper.createObjectNode()
+                .put("email", email)
+                .put("password", password)
+                .toString();
+
+        try {
+            byte[] data = json.getBytes(StandardCharsets.UTF_8);
+
+            try (OutputStream output = connection.getOutputStream()) {
+                output.write(data);
+            }
+
+            int statusCode = connection.getResponseCode();
+
+            if (statusCode == HttpURLConnection.HTTP_OK) {
+                try (InputStream input = connection.getInputStream()) {
+                    JsonNode response = objectMapper.readTree(input);
+                    accessToken = response.path("accessToken").asText(null);
+                }
+            } else {
+                System.err.println(
+                        "Ошибка авторизации пользователя. HTTP: " + statusCode
+                );
+            }
+
+            return statusCode;
+
+        } finally {
+            connection.disconnect();
+        }
+    }
+
+    // Получение токена пользователя
     public String getAccessToken() {
         return accessToken;
     }
 
+    // Удаление пользователя через API
     public void deleteUser() throws IOException {
 
         if (accessToken == null || accessToken.isEmpty()) {
@@ -108,4 +163,5 @@ public class UserApiClient {
         }
     }
 }
+
 
