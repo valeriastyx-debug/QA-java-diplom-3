@@ -1,10 +1,10 @@
 
 package praktikum.tests;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
+
 import praktikum.client.UserApiClient;
 import praktikum.pages.ForgotPasswordPage;
 import praktikum.pages.LoginPage;
@@ -12,17 +12,18 @@ import praktikum.pages.MainPage;
 import praktikum.pages.RegisterPage;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import org.junit.After;
 
 public class LoginTest extends BaseTest {
+
     private final UserApiClient userApiClient = new UserApiClient();
+
     private final String email =
             "test-" + UUID.randomUUID() + "@yandex.ru";
+
     private final String password = "password123";
     private final String name = "Test User";
 
@@ -53,7 +54,10 @@ public class LoginTest extends BaseTest {
         mainPage.clickLoginButton();
         loginPage.login(email, password);
 
-        assertSuccessfulLogin();
+        assertTrue(
+                "После авторизации пользователь должен попасть на главную страницу",
+                mainPage.isMainPageOpened()
+        );
     }
 
     @Test
@@ -64,7 +68,10 @@ public class LoginTest extends BaseTest {
         mainPage.clickPersonalAccountButton();
         loginPage.login(email, password);
 
-        assertSuccessfulLogin();
+        assertTrue(
+                "После авторизации пользователь должен попасть на главную страницу",
+                mainPage.isMainPageOpened()
+        );
     }
 
     @Test
@@ -79,7 +86,10 @@ public class LoginTest extends BaseTest {
 
         loginPage.login(email, password);
 
-        assertSuccessfulLogin();
+        assertTrue(
+                "После авторизации пользователь должен попасть на главную страницу",
+                mainPage.isMainPageOpened()
+        );
     }
 
     @Test
@@ -95,17 +105,10 @@ public class LoginTest extends BaseTest {
 
         loginPage.login(email, password);
 
-        assertSuccessfulLogin();
-    }
-
-    private void assertSuccessfulLogin() {
-        WebDriverWait wait =
-                new WebDriverWait(driver, Duration.ofSeconds(15));
-
         assertTrue(
-                wait.until(ExpectedConditions.urlToBe(
-                        "https://stellarburgers.education-services.ru/"
-                ))
+                "После авторизации пользователь должен попасть на главную страницу",
+                mainPage.isMainPageOpened()
         );
     }
 }
+

@@ -1,18 +1,15 @@
 
-
 package praktikum.tests;
 
-import praktikum.pages.PersonalAccountPage;
+import io.qameta.allure.Description;
 import org.junit.After;
 import org.junit.Test;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import praktikum.client.UserApiClient;
 import praktikum.pages.LoginPage;
 import praktikum.pages.MainPage;
+import praktikum.pages.PersonalAccountPage;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -34,24 +31,145 @@ public class PersonalAccountTest extends BaseTest {
     }
 
     @Test
+    @Description("Проверка открытия страницы авторизации при нажатии на кнопку «Личный кабинет»")
     public void openLoginPageFromPersonalAccountButtonTest() {
         MainPage mainPage = new MainPage(driver);
+        LoginPage loginPage = new LoginPage(driver);
 
         mainPage.clickPersonalAccountButton();
 
-        WebDriverWait wait =
-                new WebDriverWait(driver, Duration.ofSeconds(15));
-
         assertTrue(
                 "Должна открыться страница авторизации",
-                wait.until(ExpectedConditions.urlContains("/login"))
+                loginPage.isLoginPageOpened()
         );
     }
 
     @Test
+    @Description("Проверка открытия личного кабинета авторизованного пользователя")
     public void openPersonalAccountAfterLoginTest() throws IOException {
+        createTestUser();
 
-        // Создаём тестового пользователя через API
+        MainPage mainPage = new MainPage(driver);
+        LoginPage loginPage = new LoginPage(driver);
+        PersonalAccountPage personalAccountPage =
+                new PersonalAccountPage(driver);
+
+        mainPage.clickLoginButton();
+        loginPage.login(email, password);
+
+        assertTrue(
+                "После входа должна открыться главная страница",
+                mainPage.isMainPageOpened()
+        );
+
+        mainPage.clickPersonalAccountButton();
+
+        assertTrue(
+                "Должен открыться личный кабинет",
+                personalAccountPage.isPersonalAccountOpened()
+        );
+    }
+
+    @Test
+    @Description("Проверка перехода на главную страницу через кнопку «Конструктор»")
+    public void goToConstructorFromPersonalAccountTest() throws IOException {
+        createTestUser();
+
+        MainPage mainPage = new MainPage(driver);
+        LoginPage loginPage = new LoginPage(driver);
+        PersonalAccountPage personalAccountPage =
+                new PersonalAccountPage(driver);
+
+        mainPage.clickLoginButton();
+        loginPage.login(email, password);
+
+        assertTrue(
+                "После входа должна открыться главная страница",
+                mainPage.isMainPageOpened()
+        );
+
+        mainPage.clickPersonalAccountButton();
+
+        assertTrue(
+                "Должен открыться личный кабинет",
+                personalAccountPage.isPersonalAccountOpened()
+        );
+
+        personalAccountPage.clickConstructorLink();
+
+        assertTrue(
+                "После нажатия «Конструктор» должна открыться главная страница",
+                mainPage.isMainPageOpened()
+        );
+    }
+
+    @Test
+    @Description("Проверка перехода на главную страницу при нажатии на логотип Stellar Burgers")
+    public void goToConstructorByLogoTest() throws IOException {
+        createTestUser();
+
+        MainPage mainPage = new MainPage(driver);
+        LoginPage loginPage = new LoginPage(driver);
+        PersonalAccountPage personalAccountPage =
+                new PersonalAccountPage(driver);
+
+        mainPage.clickLoginButton();
+        loginPage.login(email, password);
+
+        assertTrue(
+                "После входа должна открыться главная страница",
+                mainPage.isMainPageOpened()
+        );
+
+        mainPage.clickPersonalAccountButton();
+
+        assertTrue(
+                "Должен открыться личный кабинет",
+                personalAccountPage.isPersonalAccountOpened()
+        );
+
+        personalAccountPage.clickLogo();
+
+        assertTrue(
+                "После нажатия на логотип должна открыться главная страница",
+                mainPage.isMainPageOpened()
+        );
+    }
+
+    @Test
+    @Description("Проверка выхода из аккаунта и перехода на страницу авторизации")
+    public void logoutFromPersonalAccountTest() throws IOException {
+        createTestUser();
+
+        MainPage mainPage = new MainPage(driver);
+        LoginPage loginPage = new LoginPage(driver);
+        PersonalAccountPage personalAccountPage =
+                new PersonalAccountPage(driver);
+
+        mainPage.clickLoginButton();
+        loginPage.login(email, password);
+
+        assertTrue(
+                "После входа должна открыться главная страница",
+                mainPage.isMainPageOpened()
+        );
+
+        mainPage.clickPersonalAccountButton();
+
+        assertTrue(
+                "Должен открыться личный кабинет",
+                personalAccountPage.isPersonalAccountOpened()
+        );
+
+        personalAccountPage.clickLogoutButton();
+
+        assertTrue(
+                "После выхода должна открыться страница авторизации",
+                loginPage.isLoginPageOpened()
+        );
+    }
+
+    private void createTestUser() throws IOException {
         int statusCode = userApiClient.createUser(
                 email, password, name
         );
@@ -61,161 +179,9 @@ public class PersonalAccountTest extends BaseTest {
                 200,
                 statusCode
         );
-
-        MainPage mainPage = new MainPage(driver);
-        LoginPage loginPage = new LoginPage(driver);
-
-        // Авторизуемся
-        mainPage.clickLoginButton();
-        loginPage.login(email, password);
-
-        WebDriverWait wait =
-                new WebDriverWait(driver, Duration.ofSeconds(15));
-
-        // Ожидаем возвращения на главную страницу
-        assertTrue(
-                "После входа должна открыться главная страница",
-                wait.until(ExpectedConditions.urlToBe(
-                        "https://stellarburgers.education-services.ru/"
-                ))
-        );
-
-        // Переходим в личный кабинет
-        mainPage.clickPersonalAccountButton();
-
-        // Проверяем адрес страницы личного кабинета
-        assertTrue(
-                "Должен открыться личный кабинет",
-                wait.until(ExpectedConditions.urlContains("/account"))
-        );
-    }
-    @Test
-    public void goToConstructorFromPersonalAccountTest() throws IOException {
-        // Создаём тестового пользователя через API
-        int statusCode = userApiClient.createUser(email, password, name);
-
-        assertEquals(
-                "Тестовый пользователь должен быть создан",
-                200,
-                statusCode
-        );
-
-        MainPage mainPage = new MainPage(driver);
-        LoginPage loginPage = new LoginPage(driver);
-        PersonalAccountPage personalAccountPage =
-                new PersonalAccountPage(driver);
-
-        // Авторизуемся
-        mainPage.clickLoginButton();
-        loginPage.login(email, password);
-
-        WebDriverWait wait =
-                new WebDriverWait(driver, Duration.ofSeconds(15));
-
-        wait.until(ExpectedConditions.urlToBe(
-                "https://stellarburgers.education-services.ru/"
-        ));
-
-        // Открываем личный кабинет
-        mainPage.clickPersonalAccountButton();
-
-        wait.until(ExpectedConditions.urlContains("/account"));
-
-        // Нажимаем «Конструктор»
-        personalAccountPage.clickConstructorLink();
-
-        // Проверяем возвращение на главную страницу
-        assertTrue(
-                "После нажатия «Конструктор» должна открыться главная страница",
-                wait.until(ExpectedConditions.urlToBe(
-                        "https://stellarburgers.education-services.ru/"
-                ))
-        );
-    }
-    @Test
-    public void goToConstructorByLogoTest() throws IOException {
-        // Создаём тестового пользователя
-        int statusCode = userApiClient.createUser(email, password, name);
-
-        assertEquals(
-                "Тестовый пользователь должен быть создан",
-                200,
-                statusCode
-        );
-
-        MainPage mainPage = new MainPage(driver);
-        LoginPage loginPage = new LoginPage(driver);
-        PersonalAccountPage personalAccountPage =
-                new PersonalAccountPage(driver);
-
-        // Авторизуемся
-        mainPage.clickLoginButton();
-        loginPage.login(email, password);
-
-        WebDriverWait wait =
-                new WebDriverWait(driver, Duration.ofSeconds(15));
-
-        wait.until(ExpectedConditions.urlToBe(
-                "https://stellarburgers.education-services.ru/"
-        ));
-
-        // Переходим в личный кабинет
-        mainPage.clickPersonalAccountButton();
-
-        wait.until(ExpectedConditions.urlContains("/account"));
-
-        // Нажимаем на логотип Stellar Burgers
-        personalAccountPage.clickLogo();
-
-        // Проверяем возвращение на главную страницу
-        assertTrue(
-                "После нажатия на логотип должна открыться главная страница",
-                wait.until(ExpectedConditions.urlToBe(
-                        "https://stellarburgers.education-services.ru/"
-                ))
-        );
-    }
-    @Test
-    public void logoutFromPersonalAccountTest() throws IOException {
-        // Создаём тестового пользователя
-        int statusCode = userApiClient.createUser(email, password, name);
-
-        assertEquals(
-                "Тестовый пользователь должен быть создан",
-                200,
-                statusCode
-        );
-
-        MainPage mainPage = new MainPage(driver);
-        LoginPage loginPage = new LoginPage(driver);
-        PersonalAccountPage personalAccountPage =
-                new PersonalAccountPage(driver);
-
-        // Авторизуемся
-        mainPage.clickLoginButton();
-        loginPage.login(email, password);
-
-        WebDriverWait wait =
-                new WebDriverWait(driver, Duration.ofSeconds(15));
-
-        wait.until(ExpectedConditions.urlToBe(
-                "https://stellarburgers.education-services.ru/"
-        ));
-
-        // Переходим в личный кабинет
-        mainPage.clickPersonalAccountButton();
-
-        wait.until(ExpectedConditions.urlContains("/account"));
-
-        // Нажимаем кнопку «Выход»
-        personalAccountPage.clickLogoutButton();
-
-        // Проверяем переход на страницу авторизации
-        assertTrue(
-                "После выхода должна открыться страница авторизации",
-                wait.until(ExpectedConditions.urlContains("/login"))
-        );
     }
 }
+
+
 
 

@@ -3,6 +3,9 @@ package praktikum.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.qameta.allure.Step;
+import praktikum.model.LoginUserRequest;
+import praktikum.model.RegisterUserRequest;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +25,7 @@ public class UserApiClient {
 
     private String accessToken;
 
-    // Создание пользователя через API
+    @Step("Создание пользователя через API")
     public int createUser(String email, String password, String name)
             throws IOException {
 
@@ -40,11 +43,10 @@ public class UserApiClient {
         connection.setReadTimeout(TIMEOUT);
         connection.setDoOutput(true);
 
-        String json = objectMapper.createObjectNode()
-                .put("email", email)
-                .put("password", password)
-                .put("name", name)
-                .toString();
+        RegisterUserRequest request =
+                new RegisterUserRequest(email, password, name);
+
+        String json = objectMapper.writeValueAsString(request);
 
         try {
             byte[] data = json.getBytes(StandardCharsets.UTF_8);
@@ -73,7 +75,7 @@ public class UserApiClient {
         }
     }
 
-    // Авторизация пользователя через API
+    @Step("Авторизация пользователя через API")
     public int loginUser(String email, String password)
             throws IOException {
 
@@ -91,10 +93,10 @@ public class UserApiClient {
         connection.setReadTimeout(TIMEOUT);
         connection.setDoOutput(true);
 
-        String json = objectMapper.createObjectNode()
-                .put("email", email)
-                .put("password", password)
-                .toString();
+        LoginUserRequest request =
+                new LoginUserRequest(email, password);
+
+        String json = objectMapper.writeValueAsString(request);
 
         try {
             byte[] data = json.getBytes(StandardCharsets.UTF_8);
@@ -123,12 +125,12 @@ public class UserApiClient {
         }
     }
 
-    // Получение токена пользователя
+    @Step("Получение токена авторизации пользователя")
     public String getAccessToken() {
         return accessToken;
     }
 
-    // Удаление пользователя через API
+    @Step("Удаление пользователя через API")
     public void deleteUser() throws IOException {
 
         if (accessToken == null || accessToken.isEmpty()) {
@@ -163,5 +165,6 @@ public class UserApiClient {
         }
     }
 }
+
 
 
