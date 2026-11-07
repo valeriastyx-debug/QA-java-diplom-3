@@ -1,8 +1,10 @@
 
+
 package praktikum.tests;
 
 import org.junit.After;
 import org.junit.Before;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -53,7 +55,7 @@ public class BaseTest {
             );
         }
 
-        driver.manage().window().maximize();
+        driver.manage().window().setSize(new Dimension(1440, 900));
         driver.get(BASE_URL);
     }
 
@@ -65,6 +67,7 @@ public class BaseTest {
         }
     }
 }
+
 
 
 

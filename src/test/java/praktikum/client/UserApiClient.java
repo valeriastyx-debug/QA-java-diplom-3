@@ -1,4 +1,3 @@
-
 package praktikum.client;
 
 import com.fasterxml.jackson.databind.JsonNode;

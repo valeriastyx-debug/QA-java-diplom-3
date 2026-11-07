@@ -1,17 +1,17 @@
 
 package praktikum.tests;
 
+import io.qameta.allure.Description;
+import io.qameta.allure.junit4.DisplayName;
 import org.junit.After;
 import org.junit.Test;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
+
 import praktikum.client.UserApiClient;
 import praktikum.pages.LoginPage;
 import praktikum.pages.MainPage;
 import praktikum.pages.RegisterPage;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -25,6 +25,8 @@ public class RegistrationTest extends BaseTest {
     private String registeredPassword;
 
     @Test
+    @DisplayName("Успешная регистрация пользователя")
+    @Description("Проверка регистрации с корректными данными и перехода на страницу авторизации")
     public void successfulRegistrationTest() {
 
         String email = "test-" + UUID.randomUUID() + "@yandex.ru";
@@ -39,25 +41,23 @@ public class RegistrationTest extends BaseTest {
         mainPage.clickLoginButton();
         loginPage.clickRegisterLink();
 
-        // Сохраняем данные для удаления пользователя
+        // Сохраняем данные для последующего удаления
         registeredEmail = email;
         registeredPassword = password;
 
         // Регистрация через UI
         registerPage.register(name, email, password);
 
-        WebDriverWait wait = new WebDriverWait(
-                driver, Duration.ofSeconds(10)
-        );
-
-        // Проверяем переход на страницу авторизации
+        // Проверяем переход на страницу авторизации через Page Object
         assertTrue(
                 "После регистрации должна открыться страница входа",
-                wait.until(ExpectedConditions.urlContains("/login"))
+                loginPage.isLoginPageOpened()
         );
     }
 
     @Test
+    @DisplayName("Ошибка регистрации с коротким паролем")
+    @Description("Проверка сообщения об ошибке при регистрации с паролем менее шести символов")
     public void registrationWithShortPasswordTest() {
 
         String email = "test-" + UUID.randomUUID() + "@yandex.ru";
@@ -90,7 +90,7 @@ public class RegistrationTest extends BaseTest {
             return;
         }
 
-        // Получаем токен пользователя через API
+        // Получаем токен зарегистрированного пользователя
         int statusCode = userApiClient.loginUser(
                 registeredEmail,
                 registeredPassword
@@ -102,9 +102,10 @@ public class RegistrationTest extends BaseTest {
                 statusCode
         );
 
-        // Удаляем созданного пользователя
+        // Удаляем пользователя
         userApiClient.deleteUser();
     }
 }
+
 
 

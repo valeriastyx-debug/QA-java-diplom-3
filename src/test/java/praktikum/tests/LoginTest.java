@@ -1,6 +1,9 @@
 
+
 package praktikum.tests;
 
+import io.qameta.allure.Description;
+import io.qameta.allure.junit4.DisplayName;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +32,6 @@ public class LoginTest extends BaseTest {
 
     @Before
     public void createTestUser() throws IOException {
-
         int statusCode = userApiClient.createUser(
                 email, password, name
         );
@@ -47,6 +49,8 @@ public class LoginTest extends BaseTest {
     }
 
     @Test
+    @DisplayName("Вход через кнопку «Войти в аккаунт» на главной странице")
+    @Description("Проверка успешной авторизации через кнопку входа на главной странице")
     public void loginFromMainPageTest() {
         MainPage mainPage = new MainPage(driver);
         LoginPage loginPage = new LoginPage(driver);
@@ -61,6 +65,8 @@ public class LoginTest extends BaseTest {
     }
 
     @Test
+    @DisplayName("Вход через кнопку «Личный кабинет»")
+    @Description("Проверка успешной авторизации через кнопку личного кабинета")
     public void loginFromPersonalAccountTest() {
         MainPage mainPage = new MainPage(driver);
         LoginPage loginPage = new LoginPage(driver);
@@ -75,6 +81,8 @@ public class LoginTest extends BaseTest {
     }
 
     @Test
+    @DisplayName("Вход через ссылку на странице регистрации")
+    @Description("Проверка успешной авторизации через ссылку «Войти» на странице регистрации")
     public void loginFromRegistrationPageTest() {
         MainPage mainPage = new MainPage(driver);
         LoginPage loginPage = new LoginPage(driver);
@@ -93,6 +101,8 @@ public class LoginTest extends BaseTest {
     }
 
     @Test
+    @DisplayName("Вход через страницу восстановления пароля")
+    @Description("Проверка успешной авторизации через ссылку «Войти» на странице восстановления пароля")
     public void loginFromForgotPasswordPageTest() {
         MainPage mainPage = new MainPage(driver);
         LoginPage loginPage = new LoginPage(driver);
@@ -111,4 +121,5 @@ public class LoginTest extends BaseTest {
         );
     }
 }
+
 

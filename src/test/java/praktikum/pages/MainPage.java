@@ -1,4 +1,3 @@
-
 package praktikum.pages;
 
 import io.qameta.allure.Step;
